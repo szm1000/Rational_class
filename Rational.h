@@ -1,6 +1,13 @@
 #include <iosfwd>
 #include <numeric>
 #include <stdexcept>
+#include <cmath>
+#include <variant>
+
+template<typename T>
+T sq(T a){
+    return a*a;
+}
 
 class Rational{
 
@@ -27,6 +34,7 @@ class Rational{
     constexpr Rational(int a): num{a}, denom{1}{}
 
     //Defalut constructor
+
     constexpr Rational(): Rational{0}{}
 
     constexpr Rational(int a, int b): num{a}, denom{b}{
@@ -83,18 +91,71 @@ class Rational{
 
     /*** Other functions ***/
 
-    int read_num() const& {
+    constexpr int read_num() const& {
         return (*this).num;
     }
 
-    int read_den() const& {
+    constexpr int read_den() const& {
         return (*this).denom;
     }
 
-    double double_val() { 
+    constexpr Rational rec(){
+        return Rational((*this).denom, (*this).num);
+    }
+
+    Rational& inv(){
+        std::swap((*this).num, (*this).denom);
+        return *this;
+    }
+
+    constexpr double double_val() { 
         return (*this).num/static_cast<double>((*this).denom);
     }
+
+    Rational& pow(const int& a){
+        if(a >= 0){
+            (*this).num = static_cast<int>(std::pow((*this).num, a));
+            (*this).denom = static_cast<int>(std::pow((*this).denom, a));
+        }
+        else{
+            (*this) = Rational(static_cast<int>(std::pow((*this).denom, -a)), static_cast<int>(std::pow((*this).num, -a)));
+        }
+        return simplify();
+    }
+
+    double pow(const double& a){
+        return std::pow((*this).num, a) / std::pow((*this).denom, a);
+    }
+
+    double sqrt(){        
+        if((*this).double_val() < 0){
+            throw std::domain_error{"Error: result is complex"};
+        }
+        return std::sqrt((*this).double_val());
+    }
+    
+    // spec_sqrt can return Rational type if possible
+
+    using sqrt_type = std::variant<double, Rational>;
+    sqrt_type spec_sqrt(){
+        if((*this).double_val() < 0){
+            throw std::domain_error{"Error: result is complex"};
+        }
+        double sqrt_num = std::sqrt((*this).num);
+        double sqrt_den = std::sqrt((*this).denom);
+        int cast_num = static_cast<int>(sqrt_num + 0.1);
+        int cast_den = static_cast<int>(sqrt_den + 0.1);
+        if(sq(cast_num) == num && sq(cast_den) == denom){
+            (*this) = Rational(cast_num, cast_den);
+            return *this;
+        }
+        else{
+            return (*this).sqrt();
+        }
+    }
 };
+
+/*** Operators ***/
 
 Rational operator+(const Rational& r1, const Rational& r2){
     Rational result = r1;
