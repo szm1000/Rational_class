@@ -20,6 +20,7 @@ bool Rmatrix_eq(const sq_matrix<Rational> &m1, const sq_matrix<Rational> &m2){
 }
 
 int main(int, char**) {
+
     double eps = 1e-10; // Numeric error
 
     /** Constructor tests **/
@@ -29,11 +30,14 @@ int main(int, char**) {
         Rational b{0};
         Rational c{0,1};
         Rational d{a};
+        Rational e{1, -2};
+        Rational f{-1, 2};
+
 
         if(a!= a && a != b && b!= c && c != d){
             return -1;
         }
-        else if(a.read_num() != 0 && a.read_den() != 1 && b.read_num() != 0 && b.read_den() != 1){
+        if(a.read_num() != 0 && a.read_den() != 1 && b.read_num() != 0 && b.read_den() != 1){
             return -1;
         }
 
@@ -44,6 +48,10 @@ int main(int, char**) {
         }
 
         if(Rational{-6,-4} != Rational{3,2}){
+            return -1;
+        }
+
+        if(e != f){
             return -1;
         }
     }
@@ -82,8 +90,8 @@ int main(int, char**) {
             return -1;
         }
 
-        c *= 3;
-        if(c != Rational{249,13}){
+        c *= -3;
+        if(c != Rational{-249,13}){
             return -1;
         }
 
@@ -92,8 +100,8 @@ int main(int, char**) {
             return -1;
         }
 
-        c /= 5;
-        if(c != Rational{249,65}){
+        c /= -5;
+        if(c != Rational{-249,-65}){
             return -1;
         }
 
@@ -155,6 +163,39 @@ int main(int, char**) {
         if(y != Rational{4,5}){
             return -1;
         }
+
+        //sqrt test
+
+        if(std::abs(sqrt(b) - std::sqrt(b.double_val())) > eps){
+            return -1;
+        }
+
+        Rational e{5, -2};
+        Rational f{-5, 2};
+
+        if(pow(e, 3) != Rational{-125, 8}){
+            return -1;
+        }
+
+        if(pow(e, 3) != Rational{-125, 8}){
+            return -1;
+        }
+
+        // newton_sqrt test
+
+        Rational rsq{4,9};
+        Rational r1{39791197, 1313197};
+
+        int max_step = 7;
+
+        if(std::abs(newton_sqrt(rsq.double_val(), 0.6, max_step, eps) - sqrt(rsq)) > eps){
+            std::cout<<"Newton_sqrt error"<<std::endl;
+            std::cout<<newton_sqrt(rsq.double_val(), 0.6, max_step, eps)<<" "<<sqrt(rsq)<<std::endl;
+        }
+        if(std::abs(newton_sqrt(r1.double_val(), 0.6, max_step, eps) - sqrt(r1)) > eps){
+            std::cout<<"Newton_sqrt error"<<std::endl;
+            std::cout<<newton_sqrt(r1.double_val(), 0.6, max_step, eps)<<" "<<sqrt(r1)<<std::endl;
+        }
     }
 
     /** Operator tests **/
@@ -197,9 +238,9 @@ int main(int, char**) {
         std::stringstream ss1;
         std::stringstream ss2;
 
-        ss1<<2<<';'<<Rational{5,81}<<','<<Rational{1,2}<<','<<Rational{2,2}<<','<<Rational{1,3};
+        ss1<<2<<';'<<Rational{-5,81}<<','<<Rational{1,-2}<<','<<Rational{2,2}<<','<<Rational{1,3};
         ss1<<'\n'<<2<<';'<<Rational{2,5}<<','<<Rational{7,4}<<','<<Rational{8,45}<<','<<Rational{9,3};
-        ss2<<"2; 5/81, 1/2, 2/2, 1/3,";
+        ss2<<"2; -5/81, -1/2, 2/2, 1/3,";
 
         sq_matrix<Rational> m1{2};
         sq_matrix<Rational> m2{2};
@@ -207,7 +248,7 @@ int main(int, char**) {
         ss1>>m1>>m2;
         ss2>>m3;
 
-        sq_matrix<Rational> res{2, std::vector{Rational{187,405}, Rational{9,4}, Rational{106,90}, Rational{10,3}}};
+        sq_matrix<Rational> res{2, std::vector{Rational{137,405}, Rational{5,4}, Rational{106,90}, Rational{10,3}}};
         if(!Rmatrix_eq((m1 + m2), res)){
             std::cout<<"Rational matrix read error!"<<std::endl;
             std::cout<<m1 + m2<<'\n'<<res<<std::endl;
@@ -219,11 +260,11 @@ int main(int, char**) {
 
         // Consistency with vector2 class
 
-        vec2<Rational> a{Rational{1,2}, Rational{5,7}};
+        vec2<Rational> a{Rational{-1,2}, Rational{5,7}};
         vec2<Rational> b{Rational{7,2}, Rational{9,7}};
-        if(std::abs(dot(a, b).double_val() - Rational(523,196).double_val()) > eps ){
+        if(std::abs(dot(a, b).double_val() - Rational(163,-196).double_val()) > eps ){
             std::cout<<"Rational vector2 error!"<<std::endl;
-            std::cout<<dot(a, b)<<" "<<dot(a, b).double_val()<<" "<<Rational(523,196).double_val()<<std::endl;
+            std::cout<<dot(a, b)<<" "<<dot(a, b).double_val()<<" "<<Rational(-163,196).double_val()<<std::endl;
         }
     }
 
