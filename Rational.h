@@ -236,17 +236,11 @@ Rational operator/(const int& c, const Rational& r){
 
 
 bool operator==(const Rational &r1, const Rational &r2){
-    if(r1.read_num() == r2.read_num() && r1.read_den() == r2.read_den()){
-        return true;
-    }
-    return false;
+    return r1.read_num() == r2.read_num() && r1.read_den() == r2.read_den();
 }
 
 bool operator<(const Rational &r1, const Rational &r2){
-    if(r1.double_val() < r2.double_val()){
-        return true;
-    }
-    return false;
+    return r1.double_val() < r2.double_val();
 }
 
 /*
