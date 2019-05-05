@@ -6,6 +6,7 @@
 #include <utility>
 #include <string>
 #include <sstream>
+#include <climits>
 
 template<typename T>
 T sq(T a){
@@ -13,8 +14,7 @@ T sq(T a){
 }
 
 class Rational;
-double sqrt(const Rational& r);
-double sqrt(Rational& r);
+double sqrt(Rational const &r);
 
 class Rational{
 
@@ -32,6 +32,10 @@ class Rational{
             denom /= gcd;
         }
         if( num <= 0 && denom < 0 ){
+            num *= -1;
+            denom *= -1;
+        }
+        else if(num >= 0 && denom < 0){
             num *= -1;
             denom *= -1;
         }
@@ -71,20 +75,38 @@ class Rational{
     }
 
     constexpr Rational& operator+=(const Rational& r){
-        num = num * r.denom + denom * r.num;
-        denom *= r.denom;
+        int lcm = std::lcm(denom, r.denom);     //Possible overflow
+        int num1 = num * lcm / denom;           //Possible overflow
+        int num2 = r.num * lcm / r.denom;       //Possible overflow
+        if(num2 > 0 && INT_MAX - num2 < num1){
+            throw std::domain_error{"Error: int overflow"};
+        }
+        else if(num2 < 0 && INT_MIN - num2 > num1){
+            throw std::domain_error{"Error: int overflow"};
+        }
+        num = num1 + num2;
+        denom = lcm;
         return simplify();
     }
 
     constexpr Rational& operator-=(const Rational& r){
-        num = num * r.denom - denom * r.num;
-        denom *= r.denom;
+        int lcm = std::lcm(denom, r.denom);     //Possible overflow
+        int num1 = num * lcm / denom;           //Possible overflow
+        int num2 = lcm * r.num / r.denom;       //Possible overflow
+        if(num2 > 0 && INT_MIN + num2 > num1){
+            throw std::domain_error{"Error: int overflow"};
+        }
+        else if(num2 < 0 && INT_MAX + num2 < num1){
+            throw std::domain_error{"Error: int overflow"};
+        }
+        num = num1 - num2;
+        denom = lcm;
         return simplify();
     }
 
     constexpr Rational& operator*=(const Rational& r){
-        num *= r.num;
-        denom *= r.denom;
+        num *= r.num;                           //Possible overflow
+        denom *= r.denom;                       //Possible overflow
         return simplify();
     }
 
@@ -92,8 +114,8 @@ class Rational{
         if(r.num == 0){
             throw std::domain_error{"Error: division by zero"};
         }
-        num *= r.denom;
-        denom *= r.num;
+        num *= r.denom;                         //Possible overflow
+        denom *= r.num;                         //Possible overflow
         return simplify();
     }
 
@@ -119,18 +141,6 @@ class Rational{
     constexpr double double_val() const& { 
         return num/static_cast<double>(denom);
     }
-/*
-    Rational& pow(const int& a){
-        if(a >= 0){
-            num = static_cast<int>(std::pow(num, a));
-            denom = static_cast<int>(std::pow(denom, a));
-        }
-        else{
-            (*this) = Rational(static_cast<int>(std::pow(denom, -a)), static_cast<int>(std::pow(num, -a)));
-        }
-        return simplify();
-    }
-*/
 
     // spec_sqrt can return Rational type if possible
 
@@ -139,13 +149,10 @@ class Rational{
         if((*this).double_val() < 0){
             throw std::domain_error{"Error: result is complex"};
         }
-        double sqrt_num = std::sqrt(num);
-        double sqrt_den = std::sqrt(denom);
-        int cast_num = static_cast<int>(sqrt_num + 0.1);
-        int cast_den = static_cast<int>(sqrt_den + 0.1);
+        int cast_num = static_cast<int>(std::sqrt(num) + 0.1);
+        int cast_den = static_cast<int>(std::sqrt(denom) + 0.1);
         if(sq(cast_num) == num && sq(cast_den) == denom){
-            //(*this) = Rational(cast_num, cast_den);
-           return Rational{cast_num, cast_den};// return *this;
+           return Rational{cast_num, cast_den};
         }
         else{
             return sqrt(*this);
@@ -204,7 +211,7 @@ Rational operator*(const Rational& r, const int& c){
 }
 
 Rational operator*(const int& c, const Rational& r){
-    return r*c; 
+    return r*c;                                 //Posible owerflow
 }
 
 Rational operator/(const Rational& r1, const Rational& r2){
@@ -234,10 +241,6 @@ bool operator==(const Rational &r1, const Rational &r2){
     }
     return false;
 }
-/*
-bool operator!=(const Rational& r1, const Rational& r2){
-    return !(r1 == r2);
-}*/
 
 bool operator<(const Rational &r1, const Rational &r2){
     if(r1.double_val() < r2.double_val()){
@@ -245,7 +248,12 @@ bool operator<(const Rational &r1, const Rational &r2){
     }
     return false;
 }
+
 /*
+bool operator!=(const Rational& r1, const Rational& r2){
+    return !(r1 == r2);
+}
+
 bool operator>(const Rational& r1, const Rational& r2){
     return !(r1 < r2)
 }
@@ -293,25 +301,36 @@ std::istream& operator>>(std::istream& istr, Rational &r){
     return istr;
 }
 
-double sqrt(Rational& r){        
+double sqrt(Rational const &r){        
     if(r.double_val() < 0){
         throw std::domain_error{"Error: result is complex"};
     }
     return std::sqrt(r.double_val());
 }
 
+double newton_sqrt(Rational& r){        
+    if(r.double_val() < 0){
+        throw std::domain_error{"Error: result is complex"};
+    }
+    return std::sqrt(r.double_val());
+}
+
+
 Rational pow(const Rational& r, const int& a){
-        int n = 0;
-        int d = 1;
-        if(a >= 0){
-            n = static_cast<int>(std::pow(r.read_num(), a));
-            d = static_cast<int>(std::pow(r.read_den(), a));
+    auto powint = [&](int p, int a){return static_cast<int>(std::pow(p, a));};
+    double dbv = r.double_val();
+    int exp = std::abs(a);
+    if(dbv > 0 && a > 0 && std::pow(INT_MAX, 1.0/a) > dbv){
+        throw std::domain_error{"Error: int overflow"};
+    }
+    else if(dbv < 0 && a > 0 && a % 2 != 0 && -std::pow(INT_MIN, 1.0/a) > -dbv){ //-INT_MIN cannot be used
+        throw std::domain_error{"Error: int overflow"};
+    }
+    Rational res = Rational(powint(r.read_num(), exp), powint(r.read_den(), exp));
+    if(a < 0){
+            res.inv();
         }
-        else{
-            n = static_cast<int>(std::pow(r.read_den(), -a));
-            d = static_cast<int>(std::pow(r.read_num(), -a));
-        }
-    return Rational(n,d);
+    return res;
 }
 
 double pow(const Rational& r, const double& a){
@@ -320,4 +339,18 @@ double pow(const Rational& r, const double& a){
 
 Rational abs(const Rational& r){
     return Rational(std::abs(r.read_num()), std::abs(r.read_den()));
+}
+
+double newton_sqrt(double x_x, double x0, int max_step, double epsilon){
+    auto f = [&](double x){ return x*x - x_x;};
+    auto f_der = [&](double x){ return 2.0 * x;};
+    auto check = [&](double a, double b ){ return abs(a - b) > epsilon;};
+    double prev = 0;
+    int counter = 0;
+    while(check(prev,x0) && counter < max_step){
+        prev = x0;
+        x0 = x0 - f(x0) / f_der(x0);
+        counter++;
+    }
+    return x0;
 }
