@@ -54,7 +54,7 @@ class Rational{
 
     constexpr Rational(int a, int b): num{a}, denom{b}{
         if(denom == 0){
-            throw std::domain_error{"Error: zero denominator"};
+            throw std::domain_error{"Exception: zero denominator"};
         }
         simplify();
     }
@@ -79,10 +79,10 @@ class Rational{
         int num1 = num * lcm / denom;           //Possible overflow
         int num2 = r.num * lcm / r.denom;       //Possible overflow
         if(num2 > 0 && INT_MAX - num2 < num1){
-            throw std::overflow_error{"Error: int overflow"};
+            throw std::overflow_error{"Exception: int overflow"};
         }
         else if(num2 < 0 && INT_MIN - num2 > num1){
-            throw std::overflow_error{"Error: int overflow"};
+            throw std::overflow_error{"Exception: int overflow"};
         }
         num = num1 + num2;
         denom = lcm;
@@ -94,10 +94,10 @@ class Rational{
         int num1 = num * lcm / denom;           //Possible overflow
         int num2 = lcm * r.num / r.denom;       //Possible overflow
         if(num2 > 0 && INT_MIN + num2 > num1){
-            throw std::overflow_error{"Error: int overflow"};
+            throw std::overflow_error{"Exception: int overflow"};
         }
         else if(num2 < 0 && INT_MAX + num2 < num1){
-            throw std::overflow_error{"Error: int overflow"};
+            throw std::overflow_error{"Exception: int overflow"};
         }
         num = num1 - num2;
         denom = lcm;
@@ -112,7 +112,7 @@ class Rational{
 
     constexpr Rational& operator/=(const Rational& r){
         if(r.num == 0){
-            throw std::domain_error{"Error: division by zero"};
+            throw std::domain_error{"Exception: division by zero"};
         }
         num *= r.denom;                         //Possible overflow
         denom *= r.num;                         //Possible overflow
@@ -147,7 +147,7 @@ class Rational{
     using sqrt_type = std::variant<double, Rational>;
     sqrt_type spec_sqrt(){
         if((*this).double_val() < 0){
-            throw std::domain_error{"Error: result is complex"};
+            throw std::domain_error{"Exception: result is complex"};
         }
         int cast_num = static_cast<int>(std::sqrt(num) + 0.1);
         int cast_den = static_cast<int>(std::sqrt(denom) + 0.1);
@@ -291,14 +291,14 @@ std::istream& operator>>(std::istream& istr, Rational &r){
 
 double sqrt(Rational const &r){        
     if(r.double_val() < 0){
-        throw std::domain_error{"Error: result is complex"};
+        throw std::domain_error{"Exception: result is complex"};
     }
     return std::sqrt(r.double_val());
 }
 
 double newton_sqrt(Rational& r){        
     if(r.double_val() < 0){
-        throw std::domain_error{"Error: result is complex"};
+        throw std::domain_error{"Exception: result is complex"};
     }
     return std::sqrt(r.double_val());
 }
@@ -309,10 +309,10 @@ Rational pow(const Rational& r, const int& a){
     double dbv = r.double_val();
     int exp = std::abs(a);
     if(dbv > 0 && a > 0 && std::pow(INT_MAX, 1.0/a) > dbv){
-        throw std::overflow_error{"Error: int overflow"};
+        throw std::overflow_error{"Exception: int overflow"};
     }
     else if(dbv < 0 && a > 0 && a % 2 != 0 && -std::pow(INT_MIN, 1.0/a) > -dbv){ //-INT_MIN cannot be used
-        throw std::overflow_error{"Error: int overflow"};
+        throw std::overflow_error{"Exception: int overflow"};
     }
     Rational res = Rational(powint(r.read_num(), exp), powint(r.read_den(), exp));
     if(a < 0){
