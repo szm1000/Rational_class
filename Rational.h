@@ -253,17 +253,11 @@ bool operator>(const Rational& r1, const Rational& r2){
 }
 
 bool operator<=(const Rational& r1, const Rational& r2){
-    if (r1 < r2 || r1 == r2){
-        return true;
-    }
-    return false;
+    return r1 < r2 || r1 == r2;
 }
 
 bool operator>=(const Rational& r1, const Rational& r2){
-    if (r1 > r2 || r1 == r2){
-        return true;
-    }
-    return false;
+    return r1 > r2 || r1 == r2;
 }
 */
 
