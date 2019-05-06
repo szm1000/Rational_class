@@ -41,6 +41,13 @@ int main(int, char**) {
             return -1;
         }
 
+        try{ 
+            a = Rational{0,0}; 
+        }
+        catch(std::domain_error const &e){
+            std::cout<<e.what()<<"\nException handled"<<std::endl;
+        }
+
         //Check simplify()
 
         if(Rational{6,4} != Rational{3,2}){
@@ -211,6 +218,15 @@ int main(int, char**) {
         if(4 + a != Rational{124, 29} && 1 - a != Rational{21,29}){
             return -1;
         }
+
+        try{ 
+            Rational overflow = Rational(INT_MAX) + 1;
+        }
+        catch(std::overflow_error const &e){
+            std::cout<<e.what()<<"\nException handled"<<std::endl;
+        }
+
+
         if(a * a != Rational{64, 841} && a / a != Rational{1}){
             return -1;
         }
@@ -268,6 +284,6 @@ int main(int, char**) {
         }
     }
 
-    std::cout<<"OK!"<<std::endl;
+    std::cout<<"Testing is done!"<<std::endl;
     return 0;
 }
