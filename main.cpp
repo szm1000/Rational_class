@@ -193,15 +193,16 @@ int main(int, char**) {
         Rational rsq{4,9};
         Rational r1{39791197, 1313197};
 
-        int max_step = 7;
+        int max_step = 3;
+        double sqeps = 1e-5;
 
-        if(std::abs(newton_sqrt(rsq.double_val(), 0.6, max_step, eps) - sqrt(rsq)) > eps){
+        if(std::abs(newton_sqrt(rsq.double_val(), 0.6, max_step, eps) - sqrt(rsq)) > sqeps){
             std::cout<<"Newton_sqrt error"<<std::endl;
             std::cout<<newton_sqrt(rsq.double_val(), 0.6, max_step, eps)<<" "<<sqrt(rsq)<<std::endl;
         }
-        if(std::abs(newton_sqrt(r1.double_val(), 0.6, max_step, eps) - sqrt(r1)) > eps){
+        if(std::abs(newton_sqrt(r1.double_val(), 5, max_step, eps) - sqrt(r1)) > sqeps){
             std::cout<<"Newton_sqrt error"<<std::endl;
-            std::cout<<newton_sqrt(r1.double_val(), 0.6, max_step, eps)<<" "<<sqrt(r1)<<std::endl;
+            std::cout<<newton_sqrt(r1.double_val(), 5, max_step, eps)<<" "<<sqrt(r1)<<std::endl;
         }
     }
 
@@ -220,7 +221,8 @@ int main(int, char**) {
         }
 
         try{ 
-            Rational overflow = Rational(INT_MAX) + 1;
+            Rational overflow = Rational(INT_MAX);
+            overflow + 1;
         }
         catch(std::overflow_error const &e){
             std::cout<<e.what()<<"\nException handled"<<std::endl;
