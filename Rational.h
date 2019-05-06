@@ -66,7 +66,7 @@ class Rational{
         denom = cpy.denom;
     }
 
-    /***Assignment operators***/
+    /*** Assignment operators ***/
 
     constexpr Rational& operator=(const Rational& r){
         num = r.num; 
@@ -79,10 +79,10 @@ class Rational{
         int num1 = num * lcm / denom;           //Possible overflow
         int num2 = r.num * lcm / r.denom;       //Possible overflow
         if(num2 > 0 && INT_MAX - num2 < num1){
-            throw std::domain_error{"Error: int overflow"};
+            throw std::overflow_error{"Error: int overflow"};
         }
         else if(num2 < 0 && INT_MIN - num2 > num1){
-            throw std::domain_error{"Error: int overflow"};
+            throw std::overflow_error{"Error: int overflow"};
         }
         num = num1 + num2;
         denom = lcm;
@@ -94,10 +94,10 @@ class Rational{
         int num1 = num * lcm / denom;           //Possible overflow
         int num2 = lcm * r.num / r.denom;       //Possible overflow
         if(num2 > 0 && INT_MIN + num2 > num1){
-            throw std::domain_error{"Error: int overflow"};
+            throw std::overflow_error{"Error: int overflow"};
         }
         else if(num2 < 0 && INT_MAX + num2 < num1){
-            throw std::domain_error{"Error: int overflow"};
+            throw std::overflow_error{"Error: int overflow"};
         }
         num = num1 - num2;
         denom = lcm;
@@ -315,10 +315,10 @@ Rational pow(const Rational& r, const int& a){
     double dbv = r.double_val();
     int exp = std::abs(a);
     if(dbv > 0 && a > 0 && std::pow(INT_MAX, 1.0/a) > dbv){
-        throw std::domain_error{"Error: int overflow"};
+        throw std::overflow_error{"Error: int overflow"};
     }
     else if(dbv < 0 && a > 0 && a % 2 != 0 && -std::pow(INT_MIN, 1.0/a) > -dbv){ //-INT_MIN cannot be used
-        throw std::domain_error{"Error: int overflow"};
+        throw std::overflow_error{"Error: int overflow"};
     }
     Rational res = Rational(powint(r.read_num(), exp), powint(r.read_den(), exp));
     if(a < 0){
