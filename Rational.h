@@ -282,7 +282,7 @@ std::istream& operator>>(std::istream& istr, Rational &r){
     }
     else{
         std::cout<<"Read error!"<<std::endl;
-        rewind;
+        rewind();
         return istr;
     }
     r = Rational{n, d};
@@ -330,9 +330,9 @@ Rational abs(const Rational& r){
 }
 
 double newton_sqrt(double x_x, double x0, int max_step, double epsilon){
-    auto f = [&](double x){ return x*x - x_x;};
+    auto f = [&](double x){ return x * x - x_x;};
     auto f_der = [&](double x){ return 2.0 * x;};
-    auto check = [&](double a, double b ){ return abs(a - b) > epsilon;};
+    auto check = [&](double a, double b ){ return std::abs(a - b) > epsilon;};
     double prev = 0;
     int counter = 0;
     while(check(prev,x0) && counter < max_step){
