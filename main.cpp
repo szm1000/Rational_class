@@ -1,4 +1,3 @@
-#include <iostream>
 #include "Rational.h"
 #include <vector>
 #include "matrix.h"
@@ -221,7 +220,7 @@ int main(int, char**) {
         }
 
         try{ 
-            Rational overflow = Rational(INT_MAX);
+            Rational overflow = Rational(std::numeric_limits<int>::max());
             overflow + 1;
         }
         catch(std::overflow_error const &e){
