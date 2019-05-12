@@ -6,7 +6,7 @@
 #include <utility>
 #include <string>
 #include <sstream>
-#include <climits>
+#include <limits>
 
 template<typename T>
 T sq(T a){
@@ -78,10 +78,10 @@ class Rational{
         int lcm = std::lcm(denom, r.denom);     //Possible overflow
         int num1 = num * lcm / denom;           //Possible overflow
         int num2 = r.num * lcm / r.denom;       //Possible overflow
-        if(num2 > 0 && INT_MAX - num2 < num1){
+        if(num2 > 0 && std::numeric_limits<int>::max() - num2 < num1){
             throw std::overflow_error{"Exception: int overflow"};
         }
-        else if(num2 < 0 && INT_MIN - num2 > num1){
+        else if(num2 < 0 && std::numeric_limits<int>::min() - num2 > num1){
             throw std::overflow_error{"Exception: int overflow"};
         }
         num = num1 + num2;
@@ -93,10 +93,10 @@ class Rational{
         int lcm = std::lcm(denom, r.denom);     //Possible overflow
         int num1 = num * lcm / denom;           //Possible overflow
         int num2 = lcm * r.num / r.denom;       //Possible overflow
-        if(num2 > 0 && INT_MIN + num2 > num1){
+        if(num2 > 0 && std::numeric_limits<int>::min() + num2 > num1){
             throw std::overflow_error{"Exception: int overflow"};
         }
-        else if(num2 < 0 && INT_MAX + num2 < num1){
+        else if(num2 < 0 && std::numeric_limits<int>::max() + num2 < num1){
             throw std::overflow_error{"Exception: int overflow"};
         }
         num = num1 - num2;
@@ -129,7 +129,7 @@ class Rational{
         return denom;
     }
 
-    constexpr Rational rec(){
+    constexpr Rational rec() const&{
         return Rational(denom, num);
     }
 
@@ -267,7 +267,7 @@ std::ostream& operator<<(std::ostream& o, Rational const &r){
 }
 
 std::istream& operator>>(std::istream& istr, Rational &r){
-    auto rewind = [state = istr.rdstate(), pos = istr.tellg(), &istr](){istr.seekg(pos); istr.setstate(state);};
+    auto rewind = [state = istr.rdstate(), pos = istr.tellg(), &istr](){istr.clear(); istr.seekg(pos); istr.setstate(state);};
     int n = 0;
     int d = 1;
     std::string temp;
@@ -308,10 +308,10 @@ Rational pow(const Rational& r, const int& a){
     auto powint = [&](int p, int a){return static_cast<int>(std::pow(p, a));};
     double dbv = r.double_val();
     int exp = std::abs(a);
-    if(dbv > 0 && a > 0 && std::pow(INT_MAX, 1.0/a) > dbv){
+    if(dbv > 0 && a > 0 && std::pow(std::numeric_limits<int>::max(), 1.0/a) > dbv){
         throw std::overflow_error{"Exception: int overflow"};
     }
-    else if(dbv < 0 && a > 0 && a % 2 != 0 && -std::pow(INT_MIN, 1.0/a) > -dbv){ //-INT_MIN cannot be used
+    else if(dbv < 0 && a > 0 && a % 2 != 0 && -std::pow(std::numeric_limits<int>::min(), 1.0/a) > -dbv){ //-std::numeric_limits<int>::min() cannot be used
         throw std::overflow_error{"Exception: int overflow"};
     }
     Rational res = Rational(powint(r.read_num(), exp), powint(r.read_den(), exp));
