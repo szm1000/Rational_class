@@ -327,7 +327,7 @@ std::ostream& operator<<(std::ostream& o, sq_matrix<T> const& m){
 
 template <typename T1>
 std::istream& operator>>(std::istream& s, sq_matrix<T1>& mat){
-    auto rewind = [state = s.rdstate(), pos = s.tellg(), &s](){s.seekg(pos); s.setstate(state);};
+    auto rewind = [state = s.rdstate(), pos = s.tellg(), &s](){s.clear(); s.seekg(pos); s.setstate(state);};
     std::string temp_s;
     std::getline(s, temp_s);
     if(!s){rewind(); std::cout<<"Read error!"<<std::endl; return s;}
