@@ -296,14 +296,6 @@ double sqrt(Rational const &r){
     return std::sqrt(r.double_val());
 }
 
-double newton_sqrt(Rational& r){        
-    if(r.double_val() < 0){
-        throw std::domain_error{"Exception: result is complex"};
-    }
-    return std::sqrt(r.double_val());
-}
-
-
 Rational pow(const Rational& r, const int& a){
     auto powint = [&](int p, int a){return static_cast<int>(std::pow(p, a));};
     double dbv = r.double_val();
